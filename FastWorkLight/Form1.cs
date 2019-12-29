@@ -30,7 +30,7 @@ namespace FastWorkLight
             {
                 case "hh.ru":
                     StartDriverHH(comboBox1, textBox1, textBox2);
-                    GetHtmlAsync(urlAddress);
+                    GetHtmlAsync(urlAddress, richTextBox1);
                     break;
                 case "gorodrabot.ru":
                     StartDriverGR(comboBox1, textBox1, textBox2);
@@ -88,7 +88,7 @@ namespace FastWorkLight
             IWebElement elementInputCity = driver.FindElement(By.CssSelector("input[type='text']"));
             elementInputCity.SendKeys($"{city.Text}" + OpenQA.Selenium.Keys.Enter);
 
-            Thread.Sleep(1000);
+            Thread.Sleep(1500);
             IWebElement buttonCity = driver.FindElement(By.CssSelector("li[class='suggest__item suggest__item_delimiter_line Bloko-Suggest-Item']"));
             buttonCity.Click();
 
@@ -135,9 +135,9 @@ namespace FastWorkLight
            
         }
 
-        private static async void GetHtmlAsync(string url)
+        private static async void GetHtmlAsync(string url, RichTextBox item)
         {
-            MessageBox.Show(url);
+            //MessageBox.Show(url);
             HttpClient httpClient = new HttpClient();
             var htmlWrite = await httpClient.GetStringAsync(url);
 
@@ -145,21 +145,36 @@ namespace FastWorkLight
             doc.LoadHtml(htmlWrite);
 
             var ItemList = doc.DocumentNode.Descendants("div")
-                .Where(x => x.GetAttributeValue("class", "").Equals("js-catalog_serp")).ToList();
+                .Where(x => x.GetAttributeValue("data-qa", "").Equals("vacancy-serp__results")).ToList();
 
-            //var ProductList = ItemList[0].Descendants("div")
-            //    .Where(x => x.GetAttributeValue("class", "").Equals("description item_table-description")).ToList();
-            //foreach (var prod in ProductList)
-            //{
-            //    var name = prod.Descendants("h3")
-            //        .Where(x => x.GetAttributeValue("class", "").Equals("snippet-title")).FirstOrDefault().InnerText.Trim();
-            //    var price = prod.Descendants("div")
-            //        .Where(x => x.GetAttributeValue("class", "").Equals("about")).FirstOrDefault().InnerText.Trim();
-            //    //var link = prod.Descendants("button").FirstOrDefault().GetAttributeValue("data-item-url", "");
+            var WorkList = ItemList[0].Descendants("div")
+                .Where(x => x.GetAttributeValue("data-qa", "").Equals("vacancy-serp__vacancy")).ToList();
 
+            foreach (var prod in WorkList)
+            {
+                var entity = prod.Descendants("a")
+                    .Where(x => x.GetAttributeValue("class", "").Equals("bloko-link HH-LinkModifier")).FirstOrDefault().InnerText.Trim();
 
-            //    Console.WriteLine(name + ": " + price + "\n");
-            //}
+                string pay = "з/п не указана";
+                try
+                {
+                    if (prod.Descendants("div")
+                        .Where(x => x.GetAttributeValue("class", "").Equals("vacancy-serp-item__compensation"))
+                        .FirstOrDefault().InnerText.Trim() != null)
+                    {
+                        pay = prod.Descendants("div")
+                      .Where(x => x.GetAttributeValue("class", "").Equals("vacancy-serp-item__compensation")).FirstOrDefault().InnerText.Trim();
+                    }
+                }
+                catch (NullReferenceException e)
+                {
+                    
+                }
+
+                var manage = prod.Descendants("a")
+                    .Where(x => x.GetAttributeValue("data-qa", "").Equals("vacancy-serp__vacancy-employer")).FirstOrDefault().InnerText.Trim();
+                item.Text += $"{entity} :  {manage}  -  {pay}\n";               
+            }
         }
 
     }
