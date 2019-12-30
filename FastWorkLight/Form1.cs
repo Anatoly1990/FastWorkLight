@@ -43,8 +43,7 @@ namespace FastWorkLight
 
                 default:
                     break;
-            }     
-            //GetHtmlAsync(comboBox1);
+            }                
 
         }
         private static void StartDriveSJ(ComboBox url, TextBox work, TextBox city)
@@ -98,9 +97,19 @@ namespace FastWorkLight
             elementInput.SendKeys($"{work.Text}"+OpenQA.Selenium.Keys.Enter);
 
             //find last list
-            IWebElement link = driver
+            IWebElement link;
+            try
+            {
+                if (driver
+                .FindElements(By.CssSelector("a[class='bloko-button HH-Pager-Control']")).Last() != null)
+                {
+                    link = driver
                 .FindElements(By.CssSelector("a[class='bloko-button HH-Pager-Control']")).Last();
-            valueList = Convert.ToInt32(link.GetAttribute("data-page"));
+                    valueList = Convert.ToInt32(link.GetAttribute("data-page"));
+                }
+                else { valueList = 1; }
+            }
+            catch (InvalidOperationException) {}
 
             urlAddress = driver.Url;
             driver.Quit();
@@ -141,53 +150,84 @@ namespace FastWorkLight
            
         }
 
-        private static async void GetHtmlAsync(string url, RichTextBox item, ProgressBar bar)
-        {
-            int index = 1;
-            string end = "&page=0";
-            HttpClient httpClient = new HttpClient();
-            var htmlWrite = await httpClient.GetStringAsync(url + end);
-
-            var doc = new HtmlAgilityPack.HtmlDocument();
-            doc.LoadHtml(htmlWrite);
-
-            var ItemList = doc.DocumentNode.Descendants("div")
-                .Where(x => x.GetAttributeValue("data-qa", "").Equals("vacancy-serp__results")).ToList();
-
-            var WorkList = ItemList[0].Descendants("div")
-                .Where(x => x.GetAttributeValue("data-qa", "").Equals("vacancy-serp__vacancy")).ToList();
-             bar.Maximum= WorkList.Count();
+        private void GetHtmlAsync(string url, RichTextBox item, ProgressBar bar)
+        {           
             new Thread(async () =>
             {
-                foreach (var prod in WorkList)
+                int index = 1;
+                for (int i = 0; i < valueList+1; i++)
                 {
-                    var entity = prod.Descendants("a")
-                        .Where(x => x.GetAttributeValue("class", "").Equals("bloko-link HH-LinkModifier")).
-                        FirstOrDefault().InnerText.Trim();
+                    
+                    HttpClient httpClient = new HttpClient();
+                    string end;
+                    if (valueList <= 1)
+                    { end = ""; }
+                    else { end = $"&page={i}"; }
+                    
+                    var htmlWrite = await httpClient.GetStringAsync(url + end);
 
-                    string pay = "з/п не указана";
-                    try
+                    var doc = new HtmlAgilityPack.HtmlDocument();
+                    doc.LoadHtml(htmlWrite);
+
+                    var ItemList = doc.DocumentNode.Descendants("div")
+                        .Where(x => x.GetAttributeValue("data-qa", "").Equals("vacancy-serp__results")).ToList();
+
+                    var WorkList = ItemList[0].Descendants("div")
+                        .Where(x => x.GetAttributeValue("data-qa", "").Equals("vacancy-serp__vacancy")).ToList();
+                    Action action = () =>
+                    { bar.Maximum = WorkList.Count(); };
+                    if (InvokeRequired) { Invoke(action); }
+                    else { action(); }
+
+                    int progressIndex = 1;
+                    foreach (var prod in WorkList)
                     {
-                        if (prod.Descendants("div")
-                            .Where(x => x.GetAttributeValue("class", "").Equals("vacancy-serp-item__compensation"))
-                            .FirstOrDefault().InnerText.Trim() != null)
+                        var entity = prod.Descendants("a")
+                            .Where(x => x.GetAttributeValue("class", "").Equals("bloko-link HH-LinkModifier")).
+                            FirstOrDefault().InnerText.Trim();
+
+                        string pay = "з/п не указана";
+                        try
                         {
-                            pay = prod.Descendants("div")
-                                .Where(x => x.GetAttributeValue("class", "").Equals("vacancy-serp-item__compensation")).
-                                FirstOrDefault().InnerText.Trim();
+                            if (prod.Descendants("div")
+                                .Where(x => x.GetAttributeValue("class", "").Equals("vacancy-serp-item__compensation"))
+                                .FirstOrDefault().InnerText.Trim() != null)
+                            {
+                                pay = prod.Descendants("div")
+                                    .Where(x => x.GetAttributeValue("class", "").Equals("vacancy-serp-item__compensation")).
+                                    FirstOrDefault().InnerText.Trim();
+                            }
                         }
+                        catch (NullReferenceException e) { }
+                        var manage = prod.Descendants("a")
+                            .Where(x => x.GetAttributeValue("data-qa", "").Equals("vacancy-serp__vacancy-employer"))
+                            .FirstOrDefault().InnerText.Trim();
+                        Action action1 = () =>
+                        {
+                            item.Text += $"{index}.  {entity} :    {manage}    -    {pay}\n";
+                            bar.Value = progressIndex;
+                        };
+                        if (InvokeRequired) { Invoke(action1); }
+                        else { action1(); }
+
+                        index++;
+                        progressIndex++;
                     }
-                    catch (NullReferenceException e) { }
-                    var manage = prod.Descendants("a")
-                        .Where(x => x.GetAttributeValue("data-qa", "").Equals("vacancy-serp__vacancy-employer"))
-                        .FirstOrDefault().InnerText.Trim();
-                    item.Text += $"{index}.  {entity} :    {manage}    -    {pay}\n";
-                    bar.Value = index;
-                    index++;
+
+                    Action action2 = () =>
+                    { bar.Value = 0; };
+                    if (InvokeRequired) { Invoke(action2); }
+                    else { action2(); }
+
                 }
             }).Start();
-        }
-            
 
+            
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }
