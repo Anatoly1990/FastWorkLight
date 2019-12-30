@@ -19,6 +19,7 @@ namespace FastWorkLight
     public partial class Form1 : Form
     {
         string urlAddress;
+        int valueList;
         public Form1()
         {
             InitializeComponent();          
@@ -30,7 +31,7 @@ namespace FastWorkLight
             {
                 case "hh.ru":
                     StartDriverHH(comboBox1, textBox1, textBox2);
-                    GetHtmlAsync(urlAddress, richTextBox1);
+                    GetHtmlAsync(urlAddress, richTextBox1, progressBar1);
                     break;
                 case "gorodrabot.ru":
                     StartDriverGR(comboBox1, textBox1, textBox2);
@@ -96,6 +97,11 @@ namespace FastWorkLight
                 .FindElement(By.CssSelector("input[data-qa='search-input']"));
             elementInput.SendKeys($"{work.Text}"+OpenQA.Selenium.Keys.Enter);
 
+            //find last list
+            IWebElement link = driver
+                .FindElements(By.CssSelector("a[class='bloko-button HH-Pager-Control']")).Last();
+            valueList = Convert.ToInt32(link.GetAttribute("data-page"));
+
             urlAddress = driver.Url;
             driver.Quit();
             return urlAddress;        
@@ -135,11 +141,12 @@ namespace FastWorkLight
            
         }
 
-        private static async void GetHtmlAsync(string url, RichTextBox item)
+        private static async void GetHtmlAsync(string url, RichTextBox item, ProgressBar bar)
         {
-            //MessageBox.Show(url);
+            int index = 1;
+            string end = "&page=0";
             HttpClient httpClient = new HttpClient();
-            var htmlWrite = await httpClient.GetStringAsync(url);
+            var htmlWrite = await httpClient.GetStringAsync(url + end);
 
             var doc = new HtmlAgilityPack.HtmlDocument();
             doc.LoadHtml(htmlWrite);
@@ -149,33 +156,38 @@ namespace FastWorkLight
 
             var WorkList = ItemList[0].Descendants("div")
                 .Where(x => x.GetAttributeValue("data-qa", "").Equals("vacancy-serp__vacancy")).ToList();
-
-            foreach (var prod in WorkList)
+             bar.Maximum= WorkList.Count();
+            new Thread(async () =>
             {
-                var entity = prod.Descendants("a")
-                    .Where(x => x.GetAttributeValue("class", "").Equals("bloko-link HH-LinkModifier")).FirstOrDefault().InnerText.Trim();
-
-                string pay = "з/п не указана";
-                try
+                foreach (var prod in WorkList)
                 {
-                    if (prod.Descendants("div")
-                        .Where(x => x.GetAttributeValue("class", "").Equals("vacancy-serp-item__compensation"))
-                        .FirstOrDefault().InnerText.Trim() != null)
+                    var entity = prod.Descendants("a")
+                        .Where(x => x.GetAttributeValue("class", "").Equals("bloko-link HH-LinkModifier")).
+                        FirstOrDefault().InnerText.Trim();
+
+                    string pay = "з/п не указана";
+                    try
                     {
-                        pay = prod.Descendants("div")
-                      .Where(x => x.GetAttributeValue("class", "").Equals("vacancy-serp-item__compensation")).FirstOrDefault().InnerText.Trim();
+                        if (prod.Descendants("div")
+                            .Where(x => x.GetAttributeValue("class", "").Equals("vacancy-serp-item__compensation"))
+                            .FirstOrDefault().InnerText.Trim() != null)
+                        {
+                            pay = prod.Descendants("div")
+                                .Where(x => x.GetAttributeValue("class", "").Equals("vacancy-serp-item__compensation")).
+                                FirstOrDefault().InnerText.Trim();
+                        }
                     }
+                    catch (NullReferenceException e) { }
+                    var manage = prod.Descendants("a")
+                        .Where(x => x.GetAttributeValue("data-qa", "").Equals("vacancy-serp__vacancy-employer"))
+                        .FirstOrDefault().InnerText.Trim();
+                    item.Text += $"{index}.  {entity} :    {manage}    -    {pay}\n";
+                    bar.Value = index;
+                    index++;
                 }
-                catch (NullReferenceException e)
-                {
-                    
-                }
-
-                var manage = prod.Descendants("a")
-                    .Where(x => x.GetAttributeValue("data-qa", "").Equals("vacancy-serp__vacancy-employer")).FirstOrDefault().InnerText.Trim();
-                item.Text += $"{entity} :  {manage}  -  {pay}\n";               
-            }
+            }).Start();
         }
+            
 
     }
 }
