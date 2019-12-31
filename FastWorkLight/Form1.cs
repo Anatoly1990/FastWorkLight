@@ -13,6 +13,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using System.Threading;
+using System.IO;
 
 namespace FastWorkLight
 {
@@ -25,56 +26,23 @@ namespace FastWorkLight
             InitializeComponent();          
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private async void button1_Click(object sender, EventArgs e)
         {
             switch (comboBox1.Text)
             {
                 case "hh.ru":
                     StartDriverHH(comboBox1, textBox1, textBox2);
-                    GetHtmlAsync(urlAddress, richTextBox1, progressBar1);
+                    GetHtmlAsyncHH(urlAddress, richTextBox1, progressBar1);
                     break;
                 case "gorodrabot.ru":
-                    StartDriverGR(comboBox1, textBox1, textBox2);
-                    break;
-                
-                case "superjob.ru":
-                    StartDriveSJ(comboBox1, textBox1, textBox2);
-                    break;
-
+                    await StartDriverGR(comboBox1, textBox1, textBox2);
+                    GetHtmlAsyncGR(urlAddress, richTextBox1, progressBar1);
+                    break;               
                 default:
                     break;
             }                
 
-        }
-        private static void StartDriveSJ(ComboBox url, TextBox work, TextBox city)
-        {
-            IWebDriver webDriver = new ChromeDriver();           
-            webDriver.Manage().Window.Maximize();
-            webDriver.Navigate().GoToUrl($"https://{url.Text}");
-            IWebElement elementInput = webDriver.FindElement(By.CssSelector("input[name='keywords']"));
-            elementInput.SendKeys($"{work.Text}");
-
-            IWebElement elementButton = webDriver.FindElement(By.CssSelector("span[class='_3mfro _3JLhD _1hP6a _2JVkc _2VHxz']"));
-            elementButton.Click();
-
-            IWebElement elementInputCity = webDriver.FindElement(By.CssSelector("input[name='geo']"));
-            elementInputCity.SendKeys($"{city.Text}");
-
-            for (int i = 0; i < 2; i++)
-            {
-                IWebElement elementBox = webDriver.FindElement(By.CssSelector("span[class='_3mfro _1hP6a _2JVkc _2VHxz']"));
-                elementBox.Click();
-            }
-            //SendKeys(OpenQA.Selenium.Keys.Enter);
-            Thread.Sleep(20000);
-
-            IWebElement elementBCity = webDriver.FindElement(By.CssSelector("span[class='qTHqo _2h9me _2f9Qn WUxjs _3DcL4']"));
-            elementBCity.Click();           
-
-            Thread.Sleep(5000);
-            //webDriver.Quit();
-
-        }
+        }       
 
         private string StartDriverHH(ComboBox url, TextBox work, TextBox city)
         {
@@ -117,40 +85,60 @@ namespace FastWorkLight
 
         }
 
-        private static void StartDriverGR(ComboBox url, TextBox work, TextBox city)
+        private async Task StartDriverGR(ComboBox url, TextBox work, TextBox city)
         {
-            
-        
-            using (var driver = new ChromeDriver())
+            IWebDriver driver = new ChromeDriver();
+            driver.Manage().Window.Maximize();
+            driver.Navigate().GoToUrl($"https://{url.Text}");
+
+            IWebElement elementCity = driver.FindElement(By.CssSelector("input[id='location']"));
+            elementCity.Click();
+            elementCity.Clear();
+            Thread.Sleep(1500);
+            elementCity.SendKeys($"{city.Text}");
+
+            IWebElement elementInput = driver
+                .FindElement(By.CssSelector("input[id='query']"));
+            elementInput.SendKeys($"{work.Text}" + OpenQA.Selenium.Keys.Enter);
+
+            ///find last list
+            int index = 1;
+            IWebElement link;
+            try
             {
-                driver.Navigate().GoToUrl($"https://{url.Text}");                             
-                driver.FindElementById("query").SendKeys($"{work.Text}");
-                driver.FindElementById("location").Click();
-                driver.FindElementById("location").Clear();               
-                Thread.Sleep(5000);
-                driver.FindElementById("location").SendKeys($"{city.Text}");
-                driver.FindElementByClassName("btn-default").Click();
+                if (driver
+                .FindElements(By.CssSelector("ul[class='result-list__pager pager']")).FirstOrDefault() != null)
+                {
+                    link = driver.FindElements(By.CssSelector("li[class='pager__item']")).Last();
+                    urlAddress = driver.Url;
+                    
+                    HttpClient httpClient = new HttpClient();
 
-                driver.FindElementByName("q").SendKeys($"{work.Text}");
-                driver.FindElementById("expanded_location_search").SendKeys($"{city.Text}");
-                
-                //driver.FindElementsByXPath($"//button[.='{city.Text}']");
+                    while (true)
+                    {
+                        var newUrl = urlAddress + $"&p={index}";
+                        var htmlWrite = await httpClient.GetStringAsync(newUrl);
+                        var doc = new HtmlAgilityPack.HtmlDocument();
+                        doc.LoadHtml(htmlWrite);
 
-
-                //button[.='Log In']
-
-                //lnk pull-right-xs search-section-locale__city
-
-                Thread.Sleep(1200000);
-
-                //return url; 
-
+                        if (doc.DocumentNode.Descendants("div")
+                        .Where(x => x.GetAttributeValue("class", "").Equals("snippet__body")).Last() == null)
+                        {
+                            break;
+                        }
+                        index++;
+                    }                                                                                                       
+                }
+                else { valueList = 1; }
             }
-            
-           
+            catch (InvalidOperationException) { }
+
+            urlAddress = driver.Url;
+            valueList = index-1;
+            driver.Quit();
         }
 
-        private void GetHtmlAsync(string url, RichTextBox item, ProgressBar bar)
+        private void GetHtmlAsyncHH(string url, RichTextBox item, ProgressBar bar)
         {           
             new Thread(async () =>
             {
@@ -225,9 +213,100 @@ namespace FastWorkLight
             
         }
 
+        private void GetHtmlAsyncGR(string url, RichTextBox item, ProgressBar bar)
+        {
+            new Thread(async () =>
+            { 
+                int index = 1;
+                for (int i = 0; i < valueList; i++)
+                {
+
+                    HttpClient httpClient = new HttpClient();
+                    string end;
+                    if (valueList <= 1)
+                    { end = ""; }
+                    else { end = $"&p={i}"; }
+
+                    var htmlWrite = await httpClient.GetStringAsync(url + end);
+
+                    var doc = new HtmlAgilityPack.HtmlDocument();
+                    doc.LoadHtml(htmlWrite);
+
+                    var ItemList = doc.DocumentNode.Descendants("div")
+                        .Where(x => x.GetAttributeValue("class", "").Equals("default-grid__content")).ToList();
+
+                    var WorkList = ItemList[0].Descendants("div")
+                        .Where(x => x.GetAttributeValue("class", "").Equals("result-list__snippet vacancy snippet")).ToList();
+                    Action action = () =>
+                    { bar.Maximum = WorkList.Count(); };
+                    if (InvokeRequired) { Invoke(action); }
+                    else { action(); }
+
+                    int progressIndex = 1;
+                    foreach (var prod in WorkList)
+                    {
+                        var entity = prod.Descendants("a")
+                            .Where(x => x.GetAttributeValue("class", "").Equals("link an-vc")).
+                            FirstOrDefault().InnerText.Trim();                                               
+                            
+                        var pay = prod.Descendants("span")
+                                    .Where(x => x.GetAttributeValue("class", "").Equals("snippet__salary")).
+                                    FirstOrDefault().InnerText.Replace("\n","").Replace("\t","");
+
+
+                        var manage = prod.Descendants("span")
+                            .Where(x => x.GetAttributeValue("class", "").Equals("snippet__meta-value"))
+                            .FirstOrDefault().InnerText.Trim();
+                        Action action1 = () =>
+                        {
+                            item.Text += $"{index}.  {entity} :    {manage}    -    {pay}\n";
+                            bar.Value = progressIndex;
+                        };
+                        if (InvokeRequired) { Invoke(action1); }
+                        else { action1(); }
+
+                        index++;
+                        progressIndex++;
+                    }
+                    Action action2 = () =>
+                    { bar.Value = 0; };
+                    if (InvokeRequired) { Invoke(action2); }
+                    else { action2(); }
+                }
+            }).Start();
+
+
+        }
+
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+            if (richTextBox1.Text.Length > 0)
+            {
+                DialogResult dialogResult;
+                dialogResult = MessageBox.Show("Данные будут утеряны. Хотите сохранить?", "Сообщение...", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.Yes)
+                {
+                    Stream myStream;
+                    SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+
+                    saveFileDialog1.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+                    saveFileDialog1.FilterIndex = 2;
+                    saveFileDialog1.RestoreDirectory = true;
+
+                    if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                    {
+                        if ((myStream = saveFileDialog1.OpenFile()) != null)
+                        {
+                            myStream.Close();
+                        }
+                    }
+                }
+            }
         }
     }
 }
