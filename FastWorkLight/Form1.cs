@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Support.UI;
+using OpenQA.Selenium.Support;
 using System.Threading;
 using System.IO;
 
@@ -28,6 +28,7 @@ namespace FastWorkLight
 
         private async void button1_Click(object sender, EventArgs e)
         {
+            CheckValueBox(richTextBox1);
             switch (comboBox1.Text)
             {
                 case "hh.ru":
@@ -42,7 +43,40 @@ namespace FastWorkLight
                     break;
             }                
 
-        }       
+        }
+
+        private static void CheckValueBox(RichTextBox richTextBox)
+        {
+            if (richTextBox.Text.Length > 0)
+            {
+                DialogResult dialogResult;
+                dialogResult = MessageBox.Show("Данные будут утеряны. Хотите сохранить?", "Сообщение...", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.Yes)
+                {
+
+                    Stream file;
+                    SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+
+                    saveFileDialog1.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+                    saveFileDialog1.FilterIndex = 2;
+                    saveFileDialog1.RestoreDirectory = true;
+
+                    if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                    {
+                        file = saveFileDialog1.OpenFile();
+                        if (file != null)
+                        {
+                            file.Close();
+                        }
+                        using (StreamWriter streamWriter = new StreamWriter(file))
+                        {
+                            streamWriter.WriteLine($"{richTextBox.Text}");
+                        }                       
+                    }
+                }
+            }
+
+        }
 
         private string StartDriverHH(ComboBox url, TextBox work, TextBox city)
         {
@@ -283,30 +317,9 @@ namespace FastWorkLight
             this.Close();
         }
 
-        private void textBox2_TextChanged(object sender, EventArgs e)
+        private void txtToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (richTextBox1.Text.Length > 0)
-            {
-                DialogResult dialogResult;
-                dialogResult = MessageBox.Show("Данные будут утеряны. Хотите сохранить?", "Сообщение...", MessageBoxButtons.YesNo);
-                if (dialogResult == DialogResult.Yes)
-                {
-                    Stream myStream;
-                    SaveFileDialog saveFileDialog1 = new SaveFileDialog();
-
-                    saveFileDialog1.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
-                    saveFileDialog1.FilterIndex = 2;
-                    saveFileDialog1.RestoreDirectory = true;
-
-                    if (saveFileDialog1.ShowDialog() == DialogResult.OK)
-                    {
-                        if ((myStream = saveFileDialog1.OpenFile()) != null)
-                        {
-                            myStream.Close();
-                        }
-                    }
-                }
-            }
+            CheckValueBox(richTextBox1);
         }
     }
 }
