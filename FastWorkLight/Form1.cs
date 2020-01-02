@@ -20,7 +20,7 @@ namespace FastWorkLight
     public partial class Form1 : Form
     {
         string urlAddress;
-        int valueList;
+        int valueList;              
         public Form1()
         {
             InitializeComponent();          
@@ -71,9 +71,11 @@ namespace FastWorkLight
                         using (StreamWriter streamWriter = new StreamWriter(file))
                         {
                             streamWriter.WriteLine($"{richTextBox.Text}");
-                        }                       
+                        }
+                        
                     }
                 }
+                richTextBox.Text = "";
             }
 
         }
@@ -173,19 +175,19 @@ namespace FastWorkLight
         }
 
         private void GetHtmlAsyncHH(string url, RichTextBox item, ProgressBar bar)
-        {           
+        {              
             new Thread(async () =>
-            {
+            {              
                 int index = 1;
-                for (int i = 0; i < valueList+1; i++)
+                for (int i = 0; i < valueList + 1; i++)
                 {
-                    
+
                     HttpClient httpClient = new HttpClient();
                     string end;
                     if (valueList <= 1)
                     { end = ""; }
                     else { end = $"&page={i}"; }
-                    
+
                     var htmlWrite = await httpClient.GetStringAsync(url + end);
 
                     var doc = new HtmlAgilityPack.HtmlDocument();
@@ -197,9 +199,9 @@ namespace FastWorkLight
                     var WorkList = ItemList[0].Descendants("div")
                         .Where(x => x.GetAttributeValue("data-qa", "").Equals("vacancy-serp__vacancy")).ToList();
                     Action action = () =>
-                    { bar.Maximum = WorkList.Count(); };
+                    { bar.Maximum = WorkList.Count(); bar.Visible = true; };
                     if (InvokeRequired) { Invoke(action); }
-                    else { action(); }
+                    else { action(); }                   
 
                     int progressIndex = 1;
                     foreach (var prod in WorkList)
@@ -243,14 +245,14 @@ namespace FastWorkLight
 
                 }
             }).Start();
-
-            
+            bar.Visible = false;
         }
 
         private void GetHtmlAsyncGR(string url, RichTextBox item, ProgressBar bar)
         {
             new Thread(async () =>
-            { 
+            {             
+
                 int index = 1;
                 for (int i = 0; i < valueList; i++)
                 {
@@ -306,9 +308,9 @@ namespace FastWorkLight
                     { bar.Value = 0; };
                     if (InvokeRequired) { Invoke(action2); }
                     else { action2(); }
-                }
+                }            
             }).Start();
-
+            
 
         }
 
@@ -321,5 +323,6 @@ namespace FastWorkLight
         {
             CheckValueBox(richTextBox1);
         }
+      
     }
 }
