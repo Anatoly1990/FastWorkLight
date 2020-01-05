@@ -14,6 +14,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Support;
 using System.Threading;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace FastWorkLight
 {
@@ -323,6 +324,30 @@ namespace FastWorkLight
         {
             CheckValueBox(richTextBox1);
         }
-      
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            TextChange(textBox1);
+        }
+        private void TextChange(TextBox textBox)
+        {
+            string template = "[0-9,!,@,$,%,^,&,*,=,/,*,%,?]";
+            if (Regex.IsMatch(textBox.Text, template))
+            {
+                MessageBox.Show("неверный ввод");
+                textBox.Text = textBox.Text.Remove(textBox.Text.Length - 1);
+            }
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+            TextChange(textBox2);
+        }
+
+        private void справкаToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Form2 form2 = new Form2();
+            form2.ShowDialog();
+        }
     }
 }

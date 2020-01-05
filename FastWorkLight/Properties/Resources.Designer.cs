@@ -69,5 +69,17 @@ namespace FastWorkLight.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Программа FastWorkLight предназначена для поиска вакансий
+        ///на следующих сетевых платформах: hh.ru, gorodrabot.ru.
+        ///
+        ///Для корректной работы ПО просьба не вмешиваться в его работу вовремя загрузки драйвера GoogleChrome..
+        /// </summary>
+        internal static string Справка {
+            get {
+                return ResourceManager.GetString("Справка", resourceCulture);
+            }
+        }
     }
 }
