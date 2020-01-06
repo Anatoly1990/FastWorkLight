@@ -15,16 +15,18 @@ using OpenQA.Selenium.Support;
 using System.Threading;
 using System.IO;
 using System.Text.RegularExpressions;
+using Tulpep.NotificationWindow;
 
 namespace FastWorkLight
 {
     public partial class Form1 : Form
     {
         string urlAddress;
-        int valueList;              
+        int valueList;
+        PopupNotifier notifier = null;
         public Form1()
         {
-            InitializeComponent();          
+            InitializeComponent();
         }
 
         private async void button1_Click(object sender, EventArgs e)
@@ -38,13 +40,14 @@ namespace FastWorkLight
                     break;
                 case "gorodrabot.ru":
                     await StartDriverGR(comboBox1, textBox1, textBox2);
-                    GetHtmlAsyncGR(urlAddress, richTextBox1, progressBar1);
-                    break;               
+                    GetHtmlAsyncGR(urlAddress, richTextBox1, progressBar1);               
+                    break;
                 default:
                     break;
-            }                
+            }
 
         }
+                                 
 
         private static void CheckValueBox(RichTextBox richTextBox)
         {
@@ -73,7 +76,7 @@ namespace FastWorkLight
                         {
                             streamWriter.WriteLine($"{richTextBox.Text}");
                         }
-                        
+
                     }
                 }
                 richTextBox.Text = "";
@@ -85,7 +88,7 @@ namespace FastWorkLight
         {
             IWebDriver driver = new ChromeDriver();
             driver.Manage().Window.Maximize();
-            driver.Navigate().GoToUrl($"https://{url.Text}");            
+            driver.Navigate().GoToUrl($"https://{url.Text}");
 
             IWebElement elementCity = driver.FindElement(By.CssSelector("button[data-qa='mainmenu_areaSwitcher']"));
             elementCity.Click();
@@ -99,7 +102,7 @@ namespace FastWorkLight
 
             IWebElement elementInput = driver
                 .FindElement(By.CssSelector("input[data-qa='search-input']"));
-            elementInput.SendKeys($"{work.Text}"+OpenQA.Selenium.Keys.Enter);
+            elementInput.SendKeys($"{work.Text}" + OpenQA.Selenium.Keys.Enter);
 
             //find last list
             IWebElement link;
@@ -114,11 +117,11 @@ namespace FastWorkLight
                 }
                 else { valueList = 1; }
             }
-            catch (InvalidOperationException) {}
+            catch (InvalidOperationException) { }
 
             urlAddress = driver.Url;
             driver.Quit();
-            return urlAddress;        
+            return urlAddress;
 
         }
 
@@ -148,7 +151,7 @@ namespace FastWorkLight
                 {
                     link = driver.FindElements(By.CssSelector("li[class='pager__item']")).Last();
                     urlAddress = driver.Url;
-                    
+
                     HttpClient httpClient = new HttpClient();
 
                     while (true)
@@ -164,21 +167,21 @@ namespace FastWorkLight
                             break;
                         }
                         index++;
-                    }                                                                                                       
+                    }
                 }
                 else { valueList = 1; }
             }
             catch (InvalidOperationException) { }
 
             urlAddress = driver.Url;
-            valueList = index-1;
+            valueList = index - 1;
             driver.Quit();
         }
 
         private void GetHtmlAsyncHH(string url, RichTextBox item, ProgressBar bar)
-        {              
+        {
             new Thread(async () =>
-            {              
+            {
                 int index = 1;
                 for (int i = 0; i < valueList + 1; i++)
                 {
@@ -202,7 +205,7 @@ namespace FastWorkLight
                     Action action = () =>
                     { bar.Maximum = WorkList.Count(); bar.Visible = true; };
                     if (InvokeRequired) { Invoke(action); }
-                    else { action(); }                   
+                    else { action(); }
 
                     int progressIndex = 1;
                     foreach (var prod in WorkList)
@@ -245,6 +248,17 @@ namespace FastWorkLight
                     else { action2(); }
 
                 }
+                Action action3 = () =>
+                {
+                    notifier = new PopupNotifier();
+                    notifier.Image = Properties.Resources.Good_Shield;
+                    notifier.ImageSize = new Size(96, 96);
+                    notifier.TitleText = "FastWorkLight";
+                    notifier.ContentText = "Поиск завершен!";
+                    notifier.Popup();
+                };
+                if (InvokeRequired) { Invoke(action3); }
+                else { action3(); }
             }).Start();
             bar.Visible = false;
         }
@@ -252,7 +266,8 @@ namespace FastWorkLight
         private void GetHtmlAsyncGR(string url, RichTextBox item, ProgressBar bar)
         {
             new Thread(async () =>
-            {             
+            {
+                               
 
                 int index = 1;
                 for (int i = 0; i < valueList; i++)
@@ -284,11 +299,11 @@ namespace FastWorkLight
                     {
                         var entity = prod.Descendants("a")
                             .Where(x => x.GetAttributeValue("class", "").Equals("link an-vc")).
-                            FirstOrDefault().InnerText.Trim();                                               
-                            
+                            FirstOrDefault().InnerText.Trim();
+
                         var pay = prod.Descendants("span")
                                     .Where(x => x.GetAttributeValue("class", "").Equals("snippet__salary")).
-                                    FirstOrDefault().InnerText.Replace("\n","").Replace("\t","");
+                                    FirstOrDefault().InnerText.Replace("\n", "").Replace("\t", "");
 
 
                         var manage = prod.Descendants("span")
@@ -309,10 +324,22 @@ namespace FastWorkLight
                     { bar.Value = 0; };
                     if (InvokeRequired) { Invoke(action2); }
                     else { action2(); }
-                }            
-            }).Start();
-            
+                }
 
+                Action action3 = () =>
+                {
+                    notifier = new PopupNotifier();
+                    notifier.Image = Properties.Resources.Good_Shield;
+                    notifier.ImageSize = new Size(96, 96);
+                    notifier.TitleText = "FastWorkLight";
+                    notifier.ContentText = "Поиск завершен!";
+                    notifier.Popup();
+                };
+                if (InvokeRequired) { Invoke(action3); }
+                else { action3(); }
+
+                
+            }).Start();
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -349,5 +376,5 @@ namespace FastWorkLight
             Form2 form2 = new Form2();
             form2.ShowDialog();
         }
-    }
+    }  
 }

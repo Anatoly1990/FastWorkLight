@@ -63,6 +63,16 @@ namespace FastWorkLight.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Good_Shield {
+            get {
+                object obj = ResourceManager.GetObject("Good_Shield", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Start {
             get {
                 object obj = ResourceManager.GetObject("Start", resourceCulture);
@@ -74,7 +84,8 @@ namespace FastWorkLight.Properties {
         ///   Ищет локализованную строку, похожую на Программа FastWorkLight предназначена для поиска вакансий
         ///на следующих сетевых платформах: hh.ru, gorodrabot.ru.
         ///
-        ///Для корректной работы ПО просьба не вмешиваться в его работу вовремя загрузки драйвера GoogleChrome..
+        ///Для корректной работы ПО, просьба не вмешиваться в его работу
+        /// вовремя загрузки драйвера GoogleChrome..
         /// </summary>
         internal static string Справка {
             get {
