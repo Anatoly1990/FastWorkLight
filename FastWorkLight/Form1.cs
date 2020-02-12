@@ -16,6 +16,7 @@ using System.Threading;
 using System.IO;
 using System.Text.RegularExpressions;
 using Tulpep.NotificationWindow;
+using FastWorkLight.Models;
 
 namespace FastWorkLight
 {
@@ -24,6 +25,7 @@ namespace FastWorkLight
         string urlAddress;
         int valueList;
         PopupNotifier notifier = null;
+        List<List<string>> exelList = new List<List<string>>();
         public Form1()
         {
             InitializeComponent();
@@ -234,6 +236,8 @@ namespace FastWorkLight
                         {
                             item.Text += $"{index}.  {entity} :    {manage}    -    {pay}\n";
                             bar.Value = progressIndex;
+                            List<string> st1 = new List<string> {index.ToString(), entity, manage, pay};
+                            exelList.Add( st1.ToList());
                         };
                         if (InvokeRequired) { Invoke(action1); }
                         else { action1(); }
@@ -375,6 +379,13 @@ namespace FastWorkLight
         {
             Form2 form2 = new Form2();
             form2.ShowDialog();
+        }
+
+        private void xlsxToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Exel xl = new Exel();
+            xl.FileOpen(@"C:\VS\С#\FastWorkLight\FastWorkLight\file1.xlsx");
+
         }
     }  
 }
