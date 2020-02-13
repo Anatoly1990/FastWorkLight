@@ -150,7 +150,7 @@ namespace FastWorkLight
             try
             {
                 if (driver
-                .FindElements(By.CssSelector("ul[class='result-list__pager pager']")).FirstOrDefault() != null)
+                .FindElements(By.CssSelector("div[class='content__block content__module']")).FirstOrDefault() != null)
                 {
                     link = driver.FindElements(By.CssSelector("li[class='pager__item']")).Last();
                     urlAddress = driver.Url;
@@ -175,6 +175,7 @@ namespace FastWorkLight
                 else { valueList = 1; }
             }
             catch (InvalidOperationException) { }
+
 
             urlAddress = driver.Url;
             valueList = index - 1;
@@ -242,8 +243,6 @@ namespace FastWorkLight
                                 Manage = manage,
                                 Pay = pay
                             });
-                            //List<string> st1 = new List<string> {index.ToString(), entity, manage, pay};
-                            //exelList.Add( st1.ToList());
                         };
                         if (InvokeRequired) { Invoke(action1); }
                         else { action1(); }
@@ -323,6 +322,12 @@ namespace FastWorkLight
                         {
                             item.Text += $"{index}.  {entity} :    {manage}    -    {pay}\n";
                             bar.Value = progressIndex;
+                            jb.Add(new Job
+                            {
+                                Entity = entity,
+                                Manage = manage,
+                                Pay = pay
+                            });
                         };
                         if (InvokeRequired) { Invoke(action1); }
                         else { action1(); }
