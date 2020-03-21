@@ -33,6 +33,7 @@
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.txtToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.xlsxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.справкаToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -45,7 +46,7 @@
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.button1 = new System.Windows.Forms.Button();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
-            this.xlsxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pdfToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -82,7 +83,8 @@
             // 
             this.saveAsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.txtToolStripMenuItem,
-            this.xlsxToolStripMenuItem});
+            this.xlsxToolStripMenuItem,
+            this.pdfToolStripMenuItem});
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
             this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveAsToolStripMenuItem.Text = "Save as";
@@ -93,6 +95,13 @@
             this.txtToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.txtToolStripMenuItem.Text = ".txt";
             this.txtToolStripMenuItem.Click += new System.EventHandler(this.txtToolStripMenuItem_Click);
+            // 
+            // xlsxToolStripMenuItem
+            // 
+            this.xlsxToolStripMenuItem.Name = "xlsxToolStripMenuItem";
+            this.xlsxToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.xlsxToolStripMenuItem.Text = ".xlsx";
+            this.xlsxToolStripMenuItem.Click += new System.EventHandler(this.xlsxToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
@@ -200,12 +209,12 @@
             this.richTextBox1.TabIndex = 11;
             this.richTextBox1.Text = "";
             // 
-            // xlsxToolStripMenuItem
+            // pdfToolStripMenuItem
             // 
-            this.xlsxToolStripMenuItem.Name = "xlsxToolStripMenuItem";
-            this.xlsxToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.xlsxToolStripMenuItem.Text = ".xlsx";
-            this.xlsxToolStripMenuItem.Click += new System.EventHandler(this.xlsxToolStripMenuItem_Click);
+            this.pdfToolStripMenuItem.Name = "pdfToolStripMenuItem";
+            this.pdfToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.pdfToolStripMenuItem.Text = ".pdf";
+            this.pdfToolStripMenuItem.Click += new System.EventHandler(this.pdfToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -255,6 +264,7 @@
         private System.Windows.Forms.ToolStripMenuItem txtToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem справкаToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem xlsxToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem pdfToolStripMenuItem;
     }
 }
 

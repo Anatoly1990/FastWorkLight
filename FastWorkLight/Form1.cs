@@ -396,7 +396,10 @@ namespace FastWorkLight
         {
             Excel xl = new Excel();
             xl.CreateNewFile(jb);
+        }
 
+        private void pdfToolStripMenuItem_Click(object sender, EventArgs e)
+        {
 
         }
     }  

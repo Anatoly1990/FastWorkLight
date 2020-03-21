@@ -109,6 +109,7 @@
     <Compile Include="Models\Excel.cs" />
     <Compile Include="Models\Job.cs" />
     <Compile Include="Models\JobList.cs" />
+    <Compile Include="Models\PDF.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
