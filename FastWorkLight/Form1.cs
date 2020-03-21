@@ -400,7 +400,8 @@ namespace FastWorkLight
 
         private void pdfToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            PDF pd = new PDF();
+            pd.Create(jb, textBox1);
         }
     }  
 }
