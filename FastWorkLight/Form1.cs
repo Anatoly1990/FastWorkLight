@@ -60,7 +60,6 @@ namespace FastWorkLight
                 dialogResult = MessageBox.Show("Данные будут утеряны. Хотите сохранить?", "Сообщение...", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
-
                     Stream file;
                     SaveFileDialog saveFileDialog1 = new SaveFileDialog();
 
@@ -404,9 +403,45 @@ namespace FastWorkLight
             pd.Create(jb, textBox1, richTextBox1);
         }
 
-        private void Form1_Leave(object sender, EventArgs e)
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            
+            if (richTextBox1.Text.Length > 0)
+            {
+                DialogResult result =
+                    MessageBox.Show("Данные будут утеряны. Хотите сохранить?", "Сообщение", MessageBoxButtons.YesNo);
+                if (result == DialogResult.Yes)
+                {
+                    Stream file;
+                    SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+
+                    saveFileDialog1.Filter = "txt files (*.txt)|*.txt|exel files (*.xlxs)|*.xlsx|pdf files (*.pdf)|*.pdf";
+                    saveFileDialog1.FilterIndex = 1;
+                    saveFileDialog1.RestoreDirectory = true;
+                    if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                    {
+                        switch (saveFileDialog1.FilterIndex)
+                        {
+                            case 1:
+                                MessageBox.Show("txt");
+                                break;
+                            case 2:
+                                Excel xl = new Excel();
+                                xl.CreateNewFile(jb, richTextBox1);
+                                break;
+                            case 3:
+                                PDF pd = new PDF();
+                                pd.Create(jb, textBox1, richTextBox1);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+                if (result == DialogResult.No)
+                {
+                    this.Close();
+                }
+            }
         }
     }  
 }

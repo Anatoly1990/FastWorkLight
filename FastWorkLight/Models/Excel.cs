@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -38,6 +39,7 @@ namespace FastWorkLight.Models
                 MS.Position = 0;
                 r1.Text = "";
                 MessageBox.Show($"Файл: SaveFile.xlsx был сохранен в {path}","Сообщение" , MessageBoxButtons.OK);
+                Process.Start(path + @"\SaveFile.xlsx");
 
             }
             else { return; }
