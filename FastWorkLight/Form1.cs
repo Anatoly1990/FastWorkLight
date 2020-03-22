@@ -60,28 +60,10 @@ namespace FastWorkLight
                 dialogResult = MessageBox.Show("Данные будут утеряны. Хотите сохранить?", "Сообщение...", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    Stream file;
-                    SaveFileDialog saveFileDialog1 = new SaveFileDialog();
-
-                    saveFileDialog1.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
-                    saveFileDialog1.FilterIndex = 2;
-                    saveFileDialog1.RestoreDirectory = true;
-
-                    if (saveFileDialog1.ShowDialog() == DialogResult.OK)
-                    {
-                        file = saveFileDialog1.OpenFile();
-                        if (file != null)
-                        {
-                            file.Close();
-                        }
-                        using (StreamWriter streamWriter = new StreamWriter(file))
-                        {
-                            streamWriter.WriteLine($"{richTextBox.Text}");
-                        }
-
-                    }
+                    TXT tx = new TXT();
+                    tx.Create(richTextBox);
                 }
-                richTextBox.Text = "";
+                
             }
 
         }
@@ -422,15 +404,19 @@ namespace FastWorkLight
                         switch (saveFileDialog1.FilterIndex)
                         {
                             case 1:
-                                MessageBox.Show("txt");
+                                TXT tx = new TXT();
+                                tx.Create(richTextBox1);
+                                this.Close();
                                 break;
                             case 2:
                                 Excel xl = new Excel();
                                 xl.CreateNewFile(jb, richTextBox1);
+                                this.Close();
                                 break;
                             case 3:
                                 PDF pd = new PDF();
                                 pd.Create(jb, textBox1, richTextBox1);
+                                this.Close();
                                 break;
                             default:
                                 break;
