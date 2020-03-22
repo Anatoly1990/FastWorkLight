@@ -393,7 +393,6 @@ namespace FastWorkLight
                     MessageBox.Show("Данные будут утеряны. Хотите сохранить?", "Сообщение", MessageBoxButtons.YesNo);
                 if (result == DialogResult.Yes)
                 {
-                    Stream file;
                     SaveFileDialog saveFileDialog1 = new SaveFileDialog();
 
                     saveFileDialog1.Filter = "txt files (*.txt)|*.txt|exel files (*.xlxs)|*.xlsx|pdf files (*.pdf)|*.pdf";
