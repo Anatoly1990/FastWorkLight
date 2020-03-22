@@ -20,7 +20,7 @@ namespace FastWorkLight.Models
         DialogResult result;
         public string path;
 
-        public void Create(List<Job> date, TextBox t1)
+        public void Create(List<Job> date, TextBox t1, RichTextBox r1)
         {           
             result = folderBrowser.ShowDialog();           
 
@@ -65,6 +65,7 @@ namespace FastWorkLight.Models
                 //Закрываем документ
                 doc.Close();
 
+                r1.Text = "";
                 MessageBox.Show($"Файл: {path}\\WorkList_{ t1.Text}.pdf успешно записан","Сообщение",MessageBoxButtons.OK);
 
                 Process.Start($"{path}\\WorkList_{ t1.Text}.pdf");

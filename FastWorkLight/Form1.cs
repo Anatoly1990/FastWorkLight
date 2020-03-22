@@ -395,13 +395,18 @@ namespace FastWorkLight
         private void xlsxToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Excel xl = new Excel();
-            xl.CreateNewFile(jb);
+            xl.CreateNewFile(jb, richTextBox1);
         }
 
         private void pdfToolStripMenuItem_Click(object sender, EventArgs e)
         {
             PDF pd = new PDF();
-            pd.Create(jb, textBox1);
+            pd.Create(jb, textBox1, richTextBox1);
+        }
+
+        private void Form1_Leave(object sender, EventArgs e)
+        {
+            
         }
     }  
 }

@@ -239,6 +239,7 @@
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "FastWorkLight";
+            this.Leave += new System.EventHandler(this.Form1_Leave);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);

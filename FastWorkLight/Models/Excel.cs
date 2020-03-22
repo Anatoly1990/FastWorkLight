@@ -14,7 +14,7 @@ namespace FastWorkLight.Models
 
         public string path;
 
-        public void CreateNewFile(List<Job> date)
+        public void CreateNewFile(List<Job> date, RichTextBox r1)
         {
             result = folderBrowser.ShowDialog();
 
@@ -36,6 +36,7 @@ namespace FastWorkLight.Models
                 MemoryStream MS = new MemoryStream();
                 workbook.SaveAs(path+@"\SaveFile.xlsx");
                 MS.Position = 0;
+                r1.Text = "";
                 MessageBox.Show($"Файл: SaveFile.xlsx был сохранен в {path}","Сообщение" , MessageBoxButtons.OK);
 
             }
