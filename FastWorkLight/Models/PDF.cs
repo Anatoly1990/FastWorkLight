@@ -52,12 +52,7 @@ namespace FastWorkLight.Models
                 table.AddCell(new Phrase(@"Manage", font));
                 table.AddCell(new Phrase(@"Pay", font));
 
-                //cell = new PdfPCell(new Phrase(@"Entity", font));
-                //cell = new PdfPCell(new Phrase(@"Manage", font));
-                //cell = new PdfPCell(new Phrase(@"Pay", font));
-                //Фоновый цвет (необязательно, просто сделаем по красивее)
                 //cell.BackgroundColor = iTextSharp.text.BaseColor.LIGHT_GRAY;
-
 
                 foreach (var item in date)
                 {
