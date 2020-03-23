@@ -187,8 +187,7 @@ namespace FastWorkLight
 
                     var WorkList = ItemList[0].Descendants("div")
                         .Where(x => x.GetAttributeValue("data-qa", "").Equals("vacancy-serp__vacancy")).ToList();
-                    Action action = () =>
-                    { bar.Maximum = WorkList.Count(); bar.Visible = true; };
+                    Action action = () =>{ bar.Maximum = WorkList.Count(); bar.Visible = true; };
                     if (InvokeRequired) { Invoke(action); }
                     else { action(); }
 
@@ -202,13 +201,13 @@ namespace FastWorkLight
                         string pay = "з/п не указана";
                         try
                         {
-                            if (prod.Descendants("div")
-                                .Where(x => x.GetAttributeValue("class", "").Equals("vacancy-serp-item__compensation"))
+                            if (prod.Descendants("span")
+                                .Where(x => x.GetAttributeValue("data-qa", "").Equals("vacancy-serp__vacancy-compensation"))
                                 .FirstOrDefault().InnerText.Trim() != null)
                             {
-                                pay = prod.Descendants("div")
-                                    .Where(x => x.GetAttributeValue("class", "").Equals("vacancy-serp-item__compensation")).
-                                    FirstOrDefault().InnerText.Trim();
+                                pay = prod.Descendants("span")
+                                .Where(x => x.GetAttributeValue("data-qa", "").Equals("vacancy-serp__vacancy-compensation"))
+                                .FirstOrDefault().InnerText.Trim();
                             }
                         }
                         catch (NullReferenceException e) { }
@@ -383,9 +382,9 @@ namespace FastWorkLight
         {
             PDF pd = new PDF();
             pd.Create(jb, textBox1, richTextBox1);
-        }
+        }     
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             if (richTextBox1.Text.Length > 0)
             {
@@ -422,9 +421,9 @@ namespace FastWorkLight
                         }
                     }
                 }
-                if (result == DialogResult.No)
+                else
                 {
-                    this.Close();
+                    Application.Exit();
                 }
             }
         }
