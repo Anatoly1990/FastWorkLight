@@ -34,6 +34,9 @@ namespace FastWorkLight
 
         private async void button1_Click(object sender, EventArgs e)
         {
+            button1.FlatAppearance.BorderSize = 0;
+            button1.FlatStyle = FlatStyle.Flat;
+
             CheckValueBox(richTextBox1);
             switch (comboBox1.Text)
             {
@@ -115,14 +118,16 @@ namespace FastWorkLight
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl($"https://{url.Text}");
 
-            IWebElement elementCity = driver.FindElement(By.CssSelector("input[id='location']"));
+            IWebElement elementCity = driver.FindElement(By.CssSelector("input[data-name-id='city_domain']"));
             elementCity.Click();
             elementCity.Clear();
             Thread.Sleep(1500);
             elementCity.SendKeys($"{city.Text}");
 
-            IWebElement elementInput = driver
-                .FindElement(By.CssSelector("input[id='query']"));
+            IWebElement elementInput = driver.FindElement(By.CssSelector("input[name='q']"));
+            elementInput.Click();
+            elementInput.Clear();
+            Thread.Sleep(1500);
             elementInput.SendKeys($"{work.Text}" + OpenQA.Selenium.Keys.Enter);
 
             ///find last list
